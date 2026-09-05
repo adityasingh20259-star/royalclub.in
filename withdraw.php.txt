@@ -1,0 +1,32 @@
+<script>
+    function submitWithdrawRequest() {
+        let amount = parseFloat(document.getElementById("withdrawAmount").value);
+        let bank = document.getElementById("bankName").value.trim();
+        let acc = document.getElementById("withdrawAccNo").value.trim();
+        let holder = document.getElementById("withdrawHolderName").value.trim();
+        let ifsc = document.getElementById("withdrawIfsc").value.trim();
+
+        if (isNaN(amount) || amount <= 0) { alert("Please enter a valid amount!"); return; }
+        if (amount < 100) { alert("Minimum withdrawal is ₹100!"); return; }
+        if (amount > 10000) { alert("Maximum withdrawal is ₹10,000!"); return; }
+        if (bank === "" || acc === "" || holder === "" || ifsc === "") { alert("Please fill all bank details!"); return; }
+
+        // यहाँ अपना WhatsApp नंबर लिखें (देश के कोड के साथ, जैसे भारत के लिए 91 और फिर अपना नंबर)
+        let adminWhatsAppNumber = "916200251905"; // 91 के बाद अपना 10 अंकों का मोबाइल नंबर डालें
+
+        // WhatsApp पर जाने वाला मैसेज फॉर्मेट
+        let message = `*New Withdrawal Request*%0A` +
+                      `-------------------%0A` +
+                      `*Amount:* ₹${amount}%0A` +
+                      `*Bank Name:* ${bank}%0A` +
+                      `*Account No:* ${acc}%0A` +
+                      `*Holder Name:* ${holder}%0A` +
+                      `*IFSC Code:* ${ifsc}`;
+
+        // WhatsApp लिंक बनाना
+        let whatsappURL = `https://wa.me/${adminWhatsAppNumber}?text=${message}`;
+
+        // यूजर को WhatsApp पर भेजना
+        window.location.href = whatsappURL;
+    }
+</script>
