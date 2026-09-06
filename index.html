@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Club - Win Go Prediction Game</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #f7f8f9;
+            color: #333333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            text-align: center;
+            padding-bottom: 70px;
+        }
+        
+        /* Auth Screens Styling */
+        .auth-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, #ff4d4f 0%, #ff1a1a 100%);
+            z-index: 2000; display: flex; flex-direction: column; justify-content: flex-start;
+            overflow-y: auto; padding: 20px;
+        }
+        .auth-header {
+            display: flex; justify-content: space-between; align-items: center; color: white; margin-bottom: 20px;
+        }
+        .auth-card {
+            background: #ffffff; border-radius: 16px; padding: 20px; text-align: left;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); width: 100%; max-width: 450px; margin: 0 auto;
+        }
+        .auth-title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .auth-subtitle { font-size: 12px; color: #666; margin-bottom: 20px; }
+        .auth-input-group { margin-bottom: 15px; }
+        .auth-label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 6px; display: block; }
+        .phone-input-box {
+            display: flex; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; overflow: hidden;
+        }
+        .phone-prefix { background: #eee; padding: 12px; font-weight: bold; font-size: 14px; color: #333; border-right: 1px solid #ddd; }
+        .auth-input {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #f9f9f9; outline: none;
+        }
+        .phone-input-box input { border: none; background: transparent; width: 100%; padding: 12px; font-size: 14px; outline: none; }
+        
+        .otp-display-box {
+            background: #fff5f5; border: 1px dashed #ff4d4f; padding: 10px; border-radius: 8px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+        }
+        .otp-code-text { font-size: 18px; font-weight: bold; color: #ff4d4f; letter-spacing: 2px; }
+
+        .auth-btn {
+            background: linear-gradient(135deg, #ff4d4f, #ff7875); color: white; border: none;
+            padding: 14px; border-radius: 8px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(255,77,79,0.3);
+        }
+        .auth-switch-btn {
+            background: #ffffff; color: #ff4d4f; border: 1px solid #ff4d4f;
+            padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; width: 100%; cursor: pointer; margin-top: 10px;
+        }
+
+        /* Main Game Layout */
+        .header {
+            background: linear-gradient(180deg, #ff4d4f 0%, #ff1a1a 100%);
+            padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; color: white;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-title { font-size: 18px; font-weight: bold; margin: 0 auto; }
+        
+        .wallet-card-bg {
+            background: linear-gradient(180deg, #ff4d4f 0%, #ff4d4f 50%, #f7f8f9 50%, #f7f8f9 100%);
+            padding: 10px 15px;
+        }
+        .wallet-card {
+            background: #ffffff; border-radius: 12px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); text-align: center;
+        }
+        .wallet-balance { font-size: 26px; font-weight: bold; color: #222; margin: 8px 0 15px 0; }
+        .wallet-actions { display: flex; gap: 10px; }
+        .w-btn { flex: 1; padding: 10px; border-radius: 20px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; }
+        .btn-withdraw { background-color: #ff4d4f; color: white; }
+        .btn-deposit { background-color: #00c853; color: white; }
+
+        .main-nav-bar {
+            display: flex; background: #fff; margin: 10px 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); overflow: hidden; border: 1px solid #eee;
+        }
+        .nav-item { flex: 1; padding: 12px; font-size: 13px; font-weight: bold; color: #666; background: #fff; border: none; cursor: pointer; }
+        .nav-item.active { background: #ff4d4f; color: #fff; }
+
+        .timer-tabs {
+            display: flex; justify-content: space-between; background: #ffffff;
+            margin: 10px 15px; padding: 8px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); gap: 5px;
+            overflow-x: auto;
+        }
+        .t-tab {
+            flex: 1; background: #f2f2f2; border: none; padding: 8px 4px;
+            border-radius: 8px; font-size: 11px; color: #666; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px;
+        }
+        .t-tab.active { background: linear-gradient(135deg, #ff4d4f, #ff7875); color: white; font-weight: bold; }
+
+        .game-panel {
+            background: #ffffff; margin: 10px 15px; padding: 15px;
+            border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative; overflow: hidden;
+        }
+        
+        .ticket-box {
+            background: #ff4d4f; border-radius: 12px; padding: 12px; color: white;
+            position: relative; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .ticket-box::before, .ticket-box::after {
+            content: ''; position: absolute; top: 50%; width: 12px; height: 12px; background: #ffffff; border-radius: 50%; transform: translateY(-50%);
+        }
+        .ticket-box::before { left: -6px; }
+        .ticket-box::after { right: -6px; }
+
+        .ticket-left { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; border-right: 1px dashed rgba(255,255,255,0.4); padding-right: 12px; flex: 1; }
+        .ticket-right { display: flex; flex-direction: column; align-items: flex-end; padding-left: 12px; flex: 1; }
+
+        .how-to-play-badge {
+            background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 3px 10px; font-size: 11px; border-radius: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .ticket-gamename { font-size: 13px; font-weight: 500; color: #fff; }
+
+        .recent-trend-balls { display: flex; gap: 4px; align-items: center; }
+        .mini-ball { width: 20px; height: 20px; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+        .time-rem-label { font-size: 11px; color: #fff; font-weight: 500; margin-bottom: 4px; }
+        .timer-digits { display: flex; gap: 3px; align-items: center; }
+        .digit-box { background: #ffffff; color: #ff4d4f; padding: 3px 5px; font-size: 16px; font-weight: bold; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .period-number { font-size: 12px; color: #fff; margin-top: 6px; font-weight: bold; letter-spacing: 0.5px; }
+
+        .bet-color-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .bc-btn {
+            flex: 1; padding: 10px; border-radius: 6px; border: none; color: white;
+            font-weight: bold; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-left: 12px; padding-right: 12px;
+        }
+        .bg-green-c { background-color: #00c853; }
+        .bg-violet-c { background-color: #9c27b0; }
+        .bg-red-c { background-color: #ff4d4f; }
+
+        .number-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 12px; }
+        .num-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .num-ball {
+            width: 36px; height: 36px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        .num-multiplier { font-size: 10px; color: #888; margin-top: 3px; }
+        
+        .ball-green { background-color: #00c853; }
+        .ball-red { background-color: #ff4d4f; }
+        .ball-violet { background-color: #9c27b0; }
+        .ball-red-violet { background: linear-gradient(135deg, #ff4d4f 50%, #9c27b0 50%); }
+        .ball-green-violet { background: linear-gradient(135deg, #00c853 50%, #9c27b0 50%); }
+
+        .size-row { display: flex; gap: 10px; }
+        .sz-btn {
+            flex: 1; padding: 12px; border-radius: 6px; border: none; color: white;
+            font-weight: bold; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; padding-left: 15px; padding-right: 15px;
+        }
+        .bg-big { background-color: #ffa726; }
+        .bg-small { background-color: #42a5f5; }
+
+        .lg-countdown-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.45); display: none; justify-content: center; align-items: center; z-index: 50; gap: 15px;
+        }
+        .lg-digit-card {
+            background: #ff4d4f; color: white; font-size: 70px; font-weight: bold;
+            width: 90px; height: 120px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); border: 2px solid #fff;
+        }
+
+        .sub-tab-nav { display: flex; background: #ffffff; margin: 10px 15px; border-radius: 8px; overflow: hidden; border: 1px solid #eee; }
+        .s-tab { flex: 1; padding: 10px; background: #ffffff; border: none; font-size: 13px; color: #666; font-weight: bold; cursor: pointer; }
+        .s-tab.active { background: #ff4d4f; color: white; }
+
+        .records-box { background: #ffffff; margin: 10px 15px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #ff4d4f; color: white; padding: 10px 4px; font-size: 12px; }
+        td { padding: 10px 4px; text-align: center; border-bottom: 1px solid #f0f0f0; font-size: 12px; color: #444; }
+        
+        .history-ball { display: inline-block; width: 22px; height: 22px; line-height: 22px; border-radius: 50%; color: white; font-weight: bold; font-size: 11px; }
+        .dot-red { display: inline-block; width: 8px; height: 8px; background: #ff4d4f; border-radius: 50%; margin: 0 2px; }
+        .dot-green { display: inline-block; width: 8px; height: 8px; background: #00c853; border-radius: 50%; margin: 0 2px; }
+        .dot-violet { display: inline-block; width: 8px; height: 8px; background: #9c27b0; border-radius: 50%; margin: 0 2px; }
+
+        .chart-container { background: #fff; margin: 10px 15px; border-radius: 10px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: left; }
+        .chart-header-row { background: #ff4d4f; color: white; display: flex; justify-content: space-between; padding: 10px; font-weight: bold; font-size: 13px; border-radius: 6px; }
+        .stat-section { font-size: 11px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
+        .stat-row { display: flex; justify-content: space-between; padding: 3px 5px; }
+        .chart-row-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+        .chart-period { font-size: 11px; color: #555; width: 95px; font-weight: bold; }
+        .chart-numbers-line { display: flex; gap: 4px; align-items: center; flex: 1; justify-content: center; }
+        .chart-num-node { width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc; font-size: 10px; display: flex; align-items: center; justify-content: center; color: #bbb; background: #fff; }
+        .chart-num-node.active-hit { color: #fff; font-weight: bold; border: none; }
+        .chart-bs-badge { width: 20px; height: 20px; border-radius: 50%; font-size: 10px; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
+        .bs-b { background-color: #ffa726; }
+        .bs-s { background-color: #42a5f5; }
+
+        .my-history-list { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .mh-card {
+            background: #fff; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid #f0f0f0; box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        }
+        .mh-left { display: flex; align-items: center; gap: 12px; text-align: left; }
+        .mh-badge { width: 45px; height: 45px; border-radius: 6px; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; color: white; }
+        .mh-info { display: flex; flex-direction: column; gap: 3px; }
+        .mh-period { font-size: 13px; font-weight: bold; color: #333; }
+        .mh-time { font-size: 11px; color: #888; }
+        .mh-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .mh-status-badge { font-size: 11px; padding: 2px 10px; border-radius: 4px; font-weight: bold; }
+        .mh-status-success { border: 1px solid #00c853; color: #00c853; background: #e8f5e9; }
+        .mh-status-fail { border: 1px solid #ff4d4f; color: #ff4d4f; background: #ffebee; }
+        .mh-amount { font-size: 14px; font-weight: bold; }
+        .mh-amount.success { color: #00c853; }
+        .mh-amount.fail { color: #ff4d4f; }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); z-index: 999; align-items: flex-end; justify-content: center;
+        }
+        .modal-content {
+            background-color: #ffffff; width: 100%; max-width: 500px;
+            border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; text-align: left;
+            animation: slideUp 0.3s ease-out; max-height: 90vh; overflow-y: auto;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .input-box {
+            width: 100%; padding: 10px; margin: 8px 0; background-color: #f7f8f9;
+            border: 1px solid #ddd; color: #333; border-radius: 6px; font-size: 14px; outline: none;
+        }
+        
+        .bank-dropdown-list {
+            position: absolute; background: #fff; border: 1px solid #ddd; width: calc(100% - 40px);
+            max-height: 120px; overflow-y: auto; z-index: 1000; border-radius: 4px; display: none; text-align: left;
+        }
+        .bank-item { padding: 8px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .bank-item:hover { background-color: #f2f2f2; }
+
+        .channel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .channel-card {
+            background: #f2f2f2; padding: 12px; border-radius: 8px; cursor: pointer;
+            border: 1px solid #ddd; text-align: left; position: relative;
+        }
+        .channel-card.selected { border-color: #ff4d4f; background: #fff5f5; }
+        .channel-name { font-size: 13px; font-weight: bold; color: #333; }
+        .channel-limit { font-size: 11px; color: #666; margin-top: 4px; }
+        
+        .amount-grid-dep { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+        .dep-amt-btn {
+            background: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 6px;
+            font-weight: bold; font-size: 14px; cursor: pointer; text-align: center;
+        }
+        .dep-amt-btn.active { border-color: #ff4d4f; color: #ff4d4f; background: #fff5f5; }
+
+        .invite-box { background: #fff; margin: 10px 15px; border-radius: 12px; padding: 15px; text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .invite-card-banner { background: linear-gradient(135deg, #ff4d4f, #ff7875); color: #fff; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: center; }
+        .invite-link-row { display: flex; gap: 8px; margin-top: 10px; }
+        
+        .admin-box { background: #fff; margin: 10px 15px; border-radius: 12px; padding: 15px; text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .admin-req-card { background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <!-- Register Screen -->
+    <div class="auth-container" id="registerScreen">
+        <div class="auth-header">
+            <span style="font-size: 18px; cursor: pointer;" onclick="switchToLogin()">‹</span>
+            <span style="font-size: 18px; font-weight: bold;">Royal Club</span>
+            <span style="font-size: 12px;">EN</span>
+        </div>
+        <div class="auth-card">
+            <div class="auth-title">Register your phone</div>
+            <div class="auth-subtitle">Create your account to start playing & earning</div>
+            
+            <div class="auth-input-group">
+                <label class="auth-label">Phone number</label>
+                <div class="phone-input-box">
+                    <div class="phone-prefix">+91</div>
+                    <input type="text" id="regPhone" placeholder="Please enter phone number" oninput="document.getElementById('regErrorMsg').style.display='none'">
+                </div>
+                <div id="regErrorMsg" style="font-size: 12px; color: #ff4d4f; margin-top: 5px; font-weight: bold; display: none;"></div>
+            </div>
+
+            <div class="auth-input-group">
+                <label class="auth-label">Set password</label>
+                <input type="password" id="regPass" class="auth-input" placeholder="Please enter password">
+            </div>
+
+            <div class="auth-input-group">
+                <label class="auth-label">Confirm password</label>
+                <input type="password" id="regConfirmPass" class="auth-input" placeholder="Please enter password again">
+            </div>
+
+            <div class="auth-input-group">
+                <label class="auth-label">Verification OTP Code</label>
+                <div class="otp-display-box">
+                    <span style="font-size: 12px; color: #666;">Your Auto OTP:</span>
+                    <span class="otp-code-text" id="generatedOtpSpan">4829</span>
+                </div>
+                <input type="text" id="regOtpInput" class="auth-input" placeholder="Enter 4-digit OTP shown above">
+            </div>
+
+            <button class="auth-btn" onclick="handleRegister()">Register</button>
+            <button class="auth-switch-btn" onclick="switchToLogin()">I have an account Login</button>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="auth-container" id="loginScreen" style="display: none;">
+        <div class="auth-header">
+            <span style="font-size: 18px; font-weight: bold;">Royal Club - Log in</span>
+            <span style="font-size: 12px;">EN</span>
+        </div>
+        <div class="auth-card">
+            <div class="auth-title">Log in</div>
+            <div class="auth-subtitle">Please log in with your phone number & password</div>
+            
+            <div class="auth-input-group">
+                <label class="auth-label">Phone number</label>
+                <div class="phone-input-box">
+                    <div class="phone-prefix">+91</div>
+                    <input type="text" id="loginPhone" placeholder="Enter registered phone">
+                </div>
+            </div>
+
+            <div class="auth-input-group">
+                <label class="auth-label">Password</label>
+                <input type="password" id="loginPass" class="auth-input" placeholder="Enter password">
+            </div>
+
+            <button class="auth-btn" onclick="handleLogin()">Log in</button>
+            <button class="auth-switch-btn" onclick="switchToRegister()">Register New Account</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div style="font-size: 14px; cursor: pointer;" onclick="logoutUser()">🚪 Logout</div>
+        <div class="header-title" id="topHeaderBrand">Royal Club</div>
+        <div style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;" id="loggedUserDisplay">User</div>
+    </div>
+
+    <!-- Wallet Balance Card -->
+    <div class="wallet-card-bg">
+        <div class="wallet-card">
+            <div class="wallet-title"><span>👛</span> Wallet balance</div>
+            <div class="wallet-balance">₹<span id="balance">0.00</span></div>
+            <div class="wallet-actions">
+                <button class="w-btn btn-withdraw" onclick="openWithdrawModal()">Withdraw</button>
+                <button class="w-btn btn-deposit" onclick="openDepositModal()">Deposit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nav Bar -->
+    <div class="main-nav-bar">
+        <button class="nav-item active" onclick="switchMainView('game', this)">🎮 Game Area</button>
+        <button class="nav-item" onclick="switchMainView('invite', this)">👥 Invite & Earn</button>
+        <button class="nav-item" onclick="switchMainView('admin', this)">🛡️ Admin Payouts</button>
+    </div>
+
+    <!-- Game Section -->
+    <div id="viewGameSection">
+        <div class="timer-tabs">
+            <button class="t-tab active" onclick="switchTab('60', this)"><span>⏱️</span>Win Go 1Min</button>
+            <button class="t-tab" onclick="switchTab('30', this)"><span>⏱️</span>Win Go 30S</button>
+            <button class="t-tab" onclick="switchTab('180', this)"><span>⏱️</span>Win Go 3Min</button>
+            <button class="t-tab" onclick="switchTab('300', this)"><span>⏱️</span>Win Go 5Min</button>
+            <button class="t-tab" onclick="switchTab('600', this)"><span>⏱️</span>Win Go 10Min</button>
+        </div>
+
+        <div class="game-panel" id="gamePanelBox">
+            <div class="lg-countdown-overlay" id="largeCountdownOverlay">
+                <div class="lg-digit-card" id="lgMinDigit">0</div>
+                <div class="lg-digit-card" id="lgSecDigit">5</div>
+            </div>
+
+            <div class="ticket-box">
+                <div class="ticket-left">
+                    <button class="how-to-play-badge">📖 How to play</button>
+                    <div class="ticket-gamename" id="gameTitle">WinGo 1 minute</div>
+                    <div class="recent-trend-balls" id="recentTrendBallsContainer"></div>
+                </div>
+                <div class="ticket-right">
+                    <div class="time-rem-label">Time remaining</div>
+                    <div class="timer-digits" id="timerDigits">
+                        <div class="digit-box">0</div><div class="digit-box">0</div>
+                        <span style="color: #ffffff; font-weight: bold;">:</span>
+                        <div class="digit-box">4</div><div class="digit-box">8</div>
+                    </div>
+                    <div class="period-number" id="periodText">2026090500901</div>
+                </div>
+            </div>
+
+            <div class="bet-color-row">
+                <button class="bc-btn bg-green-c" onclick="openBetModal('Green')">Green <span>2X</span></button>
+                <button class="bc-btn bg-violet-c" onclick="openBetModal('Violet')">Violet <span>4.5X</span></button>
+                <button class="bc-btn bg-red-c" onclick="openBetModal('Red')">Red <span>2X</span></button>
+            </div>
+
+            <div class="number-grid" id="numberGridContainer">
+                <div class="num-item" onclick="openBetModal('0')"><div class="num-ball ball-red-violet">0</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('1')"><div class="num-ball ball-green">1</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('2')"><div class="num-ball ball-red">2</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('3')"><div class="num-ball ball-green">3</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('4')"><div class="num-ball ball-red">4</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('5')"><div class="num-ball ball-green-violet">5</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('6')"><div class="num-ball ball-red">6</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('7')"><div class="num-ball ball-green">7</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('8')"><div class="num-ball ball-red">8</div><div class="num-multiplier">9X</div></div>
+                <div class="num-item" onclick="openBetModal('9')"><div class="num-ball ball-green">9</div><div class="num-multiplier">9X</div></div>
+            </div>
+
+            <div class="size-row">
+                <button class="sz-btn bg-big" onclick="openBetModal('Big')">Big <span>2X</span></button>
+                <button class="sz-btn bg-small" onclick="openBetModal('Small')">Small <span>2X</span></button>
+            </div>
+        </div>
+
+        <div class="sub-tab-nav">
+            <button class="s-tab active" onclick="switchSubTab('history', this)">Game history</button>
+            <button class="s-tab" onclick="switchSubTab('chart', this)">Chart</button>
+            <button class="s-tab" onclick="switchSubTab('myhistory', this)">My history</button>
+        </div>
+
+        <div class="records-box" id="section-history">
+            <table>
+                <thead><tr><th>Period</th><th>Number</th><th>Big Small</th><th>Color</th></tr></thead>
+                <tbody id="historyTable"></tbody>
+            </table>
+        </div>
+
+        <div class="chart-container" id="section-chart" style="display: none;">
+            <div class="chart-header-row"><span>Period</span><span>Number</span></div>
+            <div class="stat-section">
+                <div style="font-weight: bold; margin-bottom: 4px; color:#333;">Statistic (last 100 Periods)</div>
+                <div class="stat-row"><span>Winning number</span><span>0 1 2 3 4 5 6 7 8 9</span></div>
+            </div>
+            <div id="chartRowsContainer"></div>
+        </div>
+
+        <div class="records-box" id="section-myhistory" style="display: none; background: transparent; box-shadow: none;">
+            <div class="my-history-list" id="myHistoryListContainer"></div>
+        </div>
+    </div>
+
+    <!-- Invite Section -->
+    <div id="viewInviteSection" style="display: none;">
+        <div class="invite-box">
+            <div class="invite-card-banner">
+                <h2 style="font-size: 20px; margin-bottom: 5px;">Invite Friends & Earn ₹500</h2>
+                <p style="font-size: 12px; opacity: 0.9;">Rule: जब आपका फ्रेंड ₹500 डिपॉजिट करके कुल ₹1500 की बेट खेलेगा, तो आपको ₹500 मिलेंगे!</p>
+            </div>
+
+            <div style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 5px;">Your Referral Link:</div>
+            <div class="invite-link-row">
+                <input type="text" id="myReferralLinkInput" class="input-box" readonly style="margin:0; background:#f2f2f2; font-size:12px;">
+                <button onclick="copyReferralLink()" style="background:#ff4d4f; color:#fff; border:none; padding:10px 15px; border-radius:6px; font-weight:bold; cursor:pointer;">Copy</button>
+            </div>
+
+            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <div style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 10px;">Your Invite Progress & Rewards:</div>
+                <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 12px; color: #666;">Friend Deposit: <b id="refDepStatus">₹0 / ₹500</b></div>
+                        <div style="font-size: 12px; color: #666; margin-top: 3px;">Total Bet Played: <b id="refBetStatus">₹0 / ₹1500</b></div>
+                    </div>
+                    <div>
+                        <button id="claimRewardBtn" onclick="claimInviteReward()" style="background:#b0bec5; color:#white; border:none; padding:8px 12px; font-size:12px; font-weight:bold; border-radius:6px; cursor:pointer;" disabled>Claim ₹500</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Section -->
+    <div id="viewAdminSection" style="display: none;">
+        <div class="admin-box">
+            <h3 style="color:#ff4d4f; margin-bottom:10px; font-size:16px;">🛡️ Admin Panel: Pending Withdrawals</h3>
+            <p style="font-size: 11px; color:#666; margin-bottom:15px;">यहाँ यूज़र्स द्वारा की गई विड्रॉल रिक्वेस्ट दिखेंगी।</p>
+            <div id="adminWithdrawalListContainer"></div>
+        </div>
+    </div>
+
+    <!-- Bet Modal -->
+    <div class="modal" id="betModal">
+        <div class="modal-content">
+            <div id="modalHeaderTitle" style="font-size:15px; font-weight:bold; color:#fff; background:#ff4d4f; padding:10px 15px; border-radius:8px; text-align:center; margin-bottom:15px;">Win Go</div>
+            <div style="font-size:13px; color:#666; margin-bottom:8px; font-weight:bold;">Contract Money</div>
+            <div style="display:flex; gap:8px; margin-bottom:15px;">
+                <button class="base-chip" onclick="setBaseMoney(1, this)" style="flex:1; background:#ff4d4f; color:#fff; border:none; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer;">1</button>
+                <button class="base-chip" onclick="setBaseMoney(10, this)" style="flex:1; background:#f2f2f2; color:#333; border:none; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer;">10</button>
+                <button class="base-chip" onclick="setBaseMoney(100, this)" style="flex:1; background:#f2f2f2; color:#333; border:none; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer;">100</button>
+                <button class="base-chip" onclick="setBaseMoney(1000, this)" style="flex:1; background:#f2f2f2; color:#333; border:none; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer;">1000</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <span style="font-size:13px; font-weight:bold; color:#333;">Quantity</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button onclick="adjustMultiplier(-1)" style="width:28px; height:28px; background:#ff4d4f; color:#fff; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">-</button>
+                    <input type="number" id="modalMultiplierInput" value="1" oninput="calculateTotal()" style="width:50px; text-align:center; border:1px solid #ddd; border-radius:4px; padding:4px; font-weight:bold;">
+                    <button onclick="adjustMultiplier(1)" style="width:28px; height:28px; background:#ff4d4f; color:#fff; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">+</button>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeBetModal()" style="flex:1; background:#b0bec5; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">Cancel</button>
+                <button onclick="confirmRealBet()" style="flex:1.5; background:linear-gradient(135deg, #ff4d4f, #ff7875); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;" id="totalBetBtn">Total amount ₹1</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div class="modal" id="depositModal">
+        <div class="modal-content">
+            <h3 style="color:#00c853; margin-bottom:10px; text-align:center;">Select Deposit Channel</h3>
+            <div class="channel-grid">
+                <div class="channel-card selected" onclick="selectChannel(this, 'WinPay')">
+                    <div class="channel-name">WinPay</div>
+                    <div class="channel-limit">Min: ₹100 | Max: ₹50,000</div>
+                </div>
+                <div class="channel-card" onclick="selectChannel(this, 'UPIPay')">
+                    <div class="channel-name">UPIPay</div>
+                    <div class="channel-limit">Min: ₹100 | Max: ₹50,000</div>
+                </div>
+            </div>
+            <label style="font-size:12px; font-weight:bold; color:#555;">Select Deposit Amount (₹)</label>
+            <div class="amount-grid-dep">
+                <button class="dep-amt-btn active" onclick="setDepositPreset(200, this)">₹ 200</button>
+                <button class="dep-amt-btn" onclick="setDepositPreset(500, this)">₹ 500</button>
+                <button class="dep-amt-btn" onclick="setDepositPreset(1000, this)">₹ 1K</button>
+            </div>
+            <input type="number" id="customDepositAmount" class="input-box" value="200" placeholder="Or enter amount">
+            <div style="font-size:11px; color:#888; margin-top:-4px; margin-bottom:8px;">Min: ₹100 | Max: ₹50,000</div>
+            <button onclick="proceedToScanner()" style="background-color:#00c853; color:white; border:none; padding:12px; font-weight:bold; border-radius:6px; width:100%; cursor:pointer; margin-top:5px;">Deposit Now</button>
+            <button onclick="closeDepositModal()" style="background-color:#b0bec5; color:white; border:none; padding:8px; margin-top:8px; border-radius:6px; width:100%; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Scanner Modal -->
+    <div class="modal" id="scannerModal">
+        <div class="modal-content" style="text-align:center;">
+            <h3 style="color:#ff4d4f; margin-bottom:10px;">Scan & Pay</h3>
+            <p style="font-size:12px; color:#666; margin-bottom:15px;">Scan QR and pay <span id="scanAmountText" style="font-weight:bold; color:#00c853;">₹200</span></p>
+            <div style="background:#fff; padding:15px; display:inline-block; border-radius:12px; margin-bottom:15px; border:2px solid #eee;">
+                <img id="dynamicQRCodeImg" src="" alt="UPI QR Code" style="width:160px; height:160px; display:block; margin:0 auto;">
+            </div>
+            <label style="font-size:12px; font-weight:bold; color:#555; display:block; text-align:left;">Enter 12-Digit UTR / Reference Number</label>
+            <input type="text" id="utrNumberInput" class="input-box" placeholder="Enter UTR after payment">
+            <div id="utrStatusMsg" style="font-size: 13px; font-weight: bold; margin: 8px 0; text-align: center;"></div>
+            <button onclick="confirmUtrPayment()" style="background-color:#00c853; color:white; border:none; padding:12px; font-weight:bold; border-radius:6px; width:100%; cursor:pointer; margin-top:5px;">Confirm Payment & Add Balance</button>
+            <button onclick="closeScannerModal()" style="background-color:#b0bec5; color:white; border:none; padding:8px; margin-top:8px; border-radius:6px; width:100%; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <h3 style="color:#ff4d4f; margin-bottom:12px; text-align:center;">Secure Withdrawal</h3>
+            <label style="font-size:12px; font-weight:bold; color:#555;">Withdrawal Amount (₹)</label>
+            <input type="number" id="withdrawAmount" class="input-box" placeholder="Enter amount">
+            <div style="font-size:11px; color:#888; margin-top:-4px; margin-bottom:8px;">Min: ₹100 | Max: ₹10,000</div>
+
+            <label style="font-size:12px; font-weight:bold; color:#555;">Bank Name</label>
+            <input type="text" id="bankSearchInput" class="input-box" placeholder="e.g. SBI, HDFC, Union" oninput="filterBanks()" autocomplete="off">
+            <div id="bankDropdown" class="bank-dropdown-list"></div>
+            
+            <label style="font-size:12px; font-weight:bold; color:#555;">Account Number</label>
+            <input type="text" id="withdrawAccNo" class="input-box" placeholder="Enter Account Number">
+            
+            <label style="font-size:12px; font-weight:bold; color:#555;">Holder Name</label>
+            <input type="text" id="withdrawHolderName" class="input-box" placeholder="Enter Name">
+            
+            <label style="font-size:12px; font-weight:bold; color:#555;">IFSC Code</label>
+            <input type="text" id="withdrawIfsc" class="input-box" placeholder="Enter IFSC">
+            
+            <label style="font-size:12px; font-weight:bold; color:#555;">Login Password (Required)</label>
+            <input type="password" id="withdrawLoginPass" class="input-box" placeholder="Enter your password">
+            
+            <button onclick="processWithdraw()" style="background-color:#ff4d4f; color:white; border:none; padding:12px; font-weight:bold; border-radius:6px; width:100%; cursor:pointer; margin-top:10px;">Submit Withdraw Request</button>
+            
+            <!-- WhatsApp Sharing Section -->
+            <div id="whatsappShareBox" style="display:none; margin-top: 15px; text-align: center; border-top: 1px dashed #ddd; padding-top: 12px;">
+                <p style="font-size: 12px; color: #333; margin-bottom: 8px;">विड्रॉल रिक्वेस्ट दर्ज हो गई है! एडमिन को भेजने के लिए क्लिक करें:</p>
+                <a id="waLink" href="#" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 13px;">
+                    💬 WhatsApp पर मैसेज भेजें
+                </a>
+            </div>
+
+            <button onclick="closeWithdrawModal()" style="background-color:#b0bec5; color:white; border:none; padding:8px; margin-top:8px; border-radius:6px; width:100%; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Script -->
+    <script>
+        let registeredUsers = JSON.parse(localStorage.getItem('lottery_users') || '{}');
+        let adminWithdrawRequests = JSON.parse(localStorage.getItem('lottery_admin_withdrawals') || '[]');
+        let loggedInUserPhone = localStorage.getItem('lottery_active_user') || null;
+
+        let userBalance = 0.00; 
+        let baseAmount = 1;
+        let currentMultiplierVal = 1;
+        let activeSelection = "";
+        let pendingDepositAmount = 200;
+        let activeOrderRefId = "";
+        const myUpiId = "Adityasingh6200@ybl";
+
+        let currentGeneratedOtp = Math.floor(1000 + Math.random() * 9000).toString();
+        document.getElementById("generatedOtpSpan").innerText = currentGeneratedOtp;
+
+        const bankList = ["State Bank of India (SBI)", "Union Bank of India", "HDFC Bank", "ICICI Bank", "Punjab National Bank (PNB)", "Bank of Baroda", "Axis Bank"];
+
+        // Web Audio API Sound Generator
+        function playSound(type) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(110, audioCtx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch (e) {}
+        }
+
+        function switchToLogin() {
+            playSound('click');
+            document.getElementById("registerScreen").style.display = "none";
+            document.getElementById("loginScreen").style.display = "flex";
+            document.getElementById("regErrorMsg").style.display = "none";
+        }
+
+        function switchToRegister() {
+            playSound('click');
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("registerScreen").style.display = "flex";
+            currentGeneratedOtp = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById("generatedOtpSpan").innerText = currentGeneratedOtp;
+        }
+
+        // 🛠️ समस्या 1 का समाधान: रजिस्ट्रेशन लॉजिक (नंबर पहले से होने पर दोबारा रजिस्टर करने से रोकना)
+        function handleRegister() {
+            playSound('click');
+            let phone = document.getElementById("regPhone").value.trim();
+            let pass = document.getElementById("regPass").value.trim();
+            let confirmPass = document.getElementById("regConfirmPass").value.trim();
+            let otp = document.getElementById("regOtpInput").value.trim();
+            let regErrorMsg = document.getElementById("regErrorMsg");
+
+            regErrorMsg.style.display = "none";
+            if(phone.length < 10) { regErrorMsg.style.display = "block"; regErrorMsg.innerText = "⚠️ Please enter a valid phone number!"; return; }
+
+            // चेक करें कि क्या यह नंबर पहले से रजिस्टर्ड है
+            if(registeredUsers[phone]) {
+                regErrorMsg.style.display = "block";
+                regErrorMsg.innerText = "❌ यह नंबर पहले से रजिस्टर्ड है! कृपया सीधे लॉगिन करें।";
+                return;
+            }
+
+            if(pass.length < 4) { regErrorMsg.style.display = "block"; regErrorMsg.innerText = "⚠️ Password must be at least 4 chars!"; return; }
+            if(pass !== confirmPass) { regErrorMsg.style.display = "block"; regErrorMsg.innerText = "⚠️ Passwords do not match!"; return; }
+            if(otp !== currentGeneratedOtp) { regErrorMsg.style.display = "block"; regErrorMsg.innerText = "⚠️ Incorrect OTP Code!"; return; }
+
+            // नया अकाउंट सेव करें (शुरुआती बैलेंस 0.00)
+            registeredUsers[phone] = { password: pass, balance: 0.00, totalDep: 0, totalBet: 0, rewardClaimed: false };
+            localStorage.setItem('lottery_users', JSON.stringify(registeredUsers));
+
+            alert("Registration Successful! Please login.");
+            switchToLogin();
+        }
+
+        // 🛠️ समस्या 2 का समाधान: लॉगिन लॉजिक (दूसरे डिवाइस में लॉग इन करने पर पुराना बैलेंस और डेटा सुरक्षित रखना)
+        function handleLogin() {
+            playSound('click');
+            let phone = document.getElementById("loginPhone").value.trim();
+            let pass = document.getElementById("loginPass").value.trim();
+
+            if(!registeredUsers[phone]) { 
+                alert("यह फोन नंबर रजिस्टर्ड नहीं है! कृपया पहले रजिस्टर करें।"); 
+                switchToRegister(); 
+                return; 
+            }
+            if(registeredUsers[phone].password !== pass) { 
+                alert("गलत पासवर्ड! (Incorrect Password)"); 
+                return; 
+            }
+
+            // यूज़र को एक्टिव करें और डेटाबेस से पुराना वास्तविक बैलेंस लोड करें (बैलेंस शून्य नहीं होगा)
+            loggedInUserPhone = phone;
+            userBalance = registeredUsers[phone].balance || 0.00;
+            localStorage.setItem('lottery_active_user', phone);
+
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("registerScreen").style.display = "none";
+            updateDisplay();
+        }
+
+        function logoutUser() {
+            playSound('click');
+            saveUserData();
+            localStorage.removeItem('lottery_active_user');
+            loggedInUserPhone = null;
+            document.getElementById("registerScreen").style.display = "flex";
+            document.getElementById("loginScreen").style.display = "none";
+        }
+
+        function saveUserData() {
+            if(loggedInUserPhone && registeredUsers[loggedInUserPhone]) {
+                registeredUsers[loggedInUserPhone].balance = userBalance;
+                localStorage.setItem('lottery_users', JSON.stringify(registeredUsers));
+            }
+        }
+
+        window.onload = function() {
+            if(loggedInUserPhone && registeredUsers[loggedInUserPhone]) {
+                document.getElementById("registerScreen").style.display = "none";
+                document.getElementById("loginScreen").style.display = "none";
+                userBalance = registeredUsers[loggedInUserPhone].balance || 0.00;
+                updateDisplay();
+            } else {
+                document.getElementById("registerScreen").style.display = "flex";
+                document.getElementById("loginScreen").style.display = "none";
+            }
+        };
+
+        function switchMainView(viewName, el) {
+            playSound('click');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+
+            document.getElementById("viewGameSection").style.display = viewName === 'game' ? 'block' : 'none';
+            document.getElementById("viewInviteSection").style.display = viewName === 'invite' ? 'block' : 'none';
+            document.getElementById("viewAdminSection").style.display = viewName === 'admin' ? 'block' : 'none';
+
+            if(viewName === 'invite') updateInviteSectionUI();
+            if(viewName === 'admin') renderAdminWithdrawals();
+        }
+
+        function updateInviteSectionUI() {
+            let userObj = registeredUsers[loggedInUserPhone] || { totalDep: 0, totalBet: 0, rewardClaimed: false };
+            let cleanInviteLink = window.location.href.split('?')[0] + "?invite=true";
+            document.getElementById("myReferralLinkInput").value = cleanInviteLink;
+
+            let curDep = userObj.totalDep || 0;
+            let curBet = userObj.totalBet || 0;
+
+            document.getElementById("refDepStatus").innerText = "₹" + curDep + " / ₹500";
+            document.getElementById("refBetStatus").innerText = "₹" + curBet + " / ₹1500";
+
+            let claimBtn = document.getElementById("claimRewardBtn");
+            if (curDep >= 500 && curBet >= 1500 && !userObj.rewardClaimed) {
+                claimBtn.style.background = "#00c853";
+                claimBtn.style.color = "#fff";
+                claimBtn.disabled = false;
+                claimBtn.innerText = "Claim ₹500";
+            } else if (userObj.rewardClaimed) {
+                claimBtn.style.background = "#eee";
+                claimBtn.style.color = "#888";
+                claimBtn.disabled = true;
+                claimBtn.innerText = "Claimed ✅";
+            } else {
+                claimBtn.style.background = "#b0bec5";
+                claimBtn.style.color = "#fff";
+                claimBtn.disabled = true;
+                claimBtn.innerText = "Claim ₹500";
+            }
+        }
+
+        function copyReferralLink() {
+            playSound('click');
+            let copyText = document.getElementById("myReferralLinkInput");
+            navigator.clipboard.writeText(copyText.value);
+            alert("Referral Link Copied to Clipboard!");
+        }
+
+        function claimInviteReward() {
+            playSound('click');
+            let userObj = registeredUsers[loggedInUserPhone];
+            if(userObj.totalDep >= 500 && userObj.totalBet >= 1500 && !userObj.rewardClaimed) {
+                userObj.rewardClaimed = true;
+                userBalance += 500;
+                saveUserData();
+                updateDisplay();
+                updateInviteSectionUI();
+                alert("🎉 बधाई हो! ₹500 का रिवॉर्ड आपके वॉलेट में सफलतापूर्वक जोड़ दिया गया है।");
+            }
+        }
+
+        function processWithdraw() {
+            playSound('click');
+            let val = parseFloat(document.getElementById("withdrawAmount").value);
+            let bankName = document.getElementById("bankSearchInput").value.trim();
+            let accNo = document.getElementById("withdrawAccNo").value.trim();
+            let holderName = document.getElementById("withdrawHolderName").value.trim();
+            let ifsc = document.getElementById("withdrawIfsc").value.trim();
+            let pass = document.getElementById("withdrawLoginPass").value.trim();
+
+            if (isNaN(val) || val <= 0) { alert("Please enter a valid withdrawal amount."); return; }
+            if (val < 100) { alert("❌ न्यूनतम विड्रॉल सीमा (Minimum Withdrawal) ₹100 है।"); return; }
+            if (val > 10000) { alert("❌ अधिकतम विड्रॉल सीमा (Maximum Withdrawal) ₹10,000 है।"); return; }
+            if (bankName === "" || accNo === "" || holderName === "" || ifsc === "") { alert("Please fill all bank details!"); return; }
+            
+            let correctPass = registeredUsers[loggedInUserPhone] ? registeredUsers[loggedInUserPhone].password : "";
+            if (pass !== correctPass) { alert("❌ Incorrect Login Password!"); return; }
+
+            if (userBalance >= val) {
+                userBalance -= val;
+                saveUserData();
+
+                let newReq = {
+                    id: "WD" + Math.floor(100000 + Math.random() * 900000),
+                    phone: loggedInUserPhone,
+                    amount: val,
+                    bank: bankName,
+                    acc: accNo,
+                    holder: holderName,
+                    ifsc: ifsc,
+                    status: "Pending"
+                };
+                adminWithdrawRequests.push(newReq);
+                localStorage.setItem('lottery_admin_withdrawals', JSON.stringify(adminWithdrawRequests));
+
+                alert("✅ Withdrawal Request Submitted Successfully!");
+                updateDisplay();
+                triggerWhatsAppMessage(val, bankName, accNo, holderName, ifsc);
+            } else {
+                alert("Insufficient balance!");
+            }
+        }
+
+        function triggerWhatsAppMessage(amount, bankName, accNo, holderName, ifsc) {
+            let adminPhoneNumber = "919876543210"; 
+            let message = `*📢 नया विड्रॉल रिक्वेस्ट आया है*\n\n` +
+                          `👤 यूजर फोन: ${loggedInUserPhone}\n` +
+                          `💰 राशि: ₹${amount}\n` +
+                          `🏦 बैंक: ${bankName}\n` +
+                          `🔢 खाता संख्या: ${accNo}\n` +
+                          `📛 नाम: ${holderName}\n` +
+                          `🔠 IFSC: ${ifsc}`;
+            let encodedMessage = encodeURIComponent(message);
+            let whatsappURL = `https://wa.me/${adminPhoneNumber}?text=${encodedMessage}`;
+            document.getElementById("waLink").href = whatsappURL;
+            document.getElementById("whatsappShareBox").style.display = "block";
+        }
+
+        function renderAdminWithdrawals() {
+            let container = document.getElementById("adminWithdrawalListContainer");
+            if(adminWithdrawRequests.length === 0) {
+                container.innerHTML = `<p style="font-size:12px; color:#888; text-align:center; padding:15px;">No pending withdrawal requests.</p>`;
+                return;
+            }
+
+            let html = "";
+            adminWithdrawRequests.forEach((req, index) => {
+                let badgeColor = req.status === 'Paid' ? '#00c853' : '#ff4d4f';
+                html += `
+                    <div class="admin-req-card">
+                        <div>
+                            <b>ID: ${req.id}</b> | User: ${req.phone}<br>
+                            Amount: <b>₹${req.amount}</b> | Bank: ${req.bank}<br>
+                            Acc: ${req.acc} | IFSC: ${req.ifsc} (${req.holder})
+                        </div>
+                        <div>
+                            <span style="color:${badgeColor}; font-weight:bold; display:block; margin-bottom:5px;">${req.status}</span>
+                            ${req.status === 'Pending' ? `<button onclick="adminApprovePayment(${index})" style="background:#00c853; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer;">Approve & Pay</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function adminApprovePayment(index) {
+            playSound('click');
+            let req = adminWithdrawRequests[index];
+            if(req.status === 'Paid') return;
+
+            req.status = "Paid";
+            localStorage.setItem('lottery_admin_withdrawals', JSON.stringify(adminWithdrawRequests));
+            renderAdminWithdrawals();
+            alert("Payment Approved & Marked as Paid!");
+        }
+
+        let gameData = JSON.parse(localStorage.getItem('royal_club_gamedata') || JSON.stringify({
+            '30': { timeLeft: 30, maxTime: 30, period: 2026090500101, history: [], myHistory: [], name: 'WinGo 30s' },
+            '60': { timeLeft: 60, maxTime: 60, period: 2026090500901, history: [], myHistory: [], name: 'WinGo 1 minute' },
+            '180': { timeLeft: 180, maxTime: 180, period: 2026090500301, history: [], myHistory: [], name: 'WinGo 3 minutes' },
+            '300': { timeLeft: 300, maxTime: 300, period: 2026090500501, history: [], myHistory: [], name: 'WinGo 5 minutes' },
+            '600': { timeLeft: 600, maxTime: 600, period: 2026090501001, history: [], myHistory: [], name: 'WinGo 10 minutes' }
+        }));
+        let currentTab = '60';
+
+        function saveGameData() {
+            localStorage.setItem('royal_club_gamedata', JSON.stringify(gameData));
+        }
+
+        function switchTab(tabKey, element) {
+            playSound('click');
+            currentTab = tabKey;
+            document.querySelectorAll('.t-tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById("gameTitle").innerText = gameData[currentTab].name;
+            updateDisplay();
+        }
+
+        function switchSubTab(subName, element) {
+            playSound('click');
+            document.querySelectorAll('.s-tab').forEach(s => s.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById("section-history").style.display = subName === 'history' ? 'block' : 'none';
+            document.getElementById("section-chart").style.display = subName === 'chart' ? 'block' : 'none';
+            document.getElementById("section-myhistory").style.display = subName === 'myhistory' ? 'block' : 'none';
+        }
+
+        setInterval(() => {
+            for (let key in gameData) {
+                let g = gameData[key];
+                if (g.timeLeft > 0) {
+                    g.timeLeft--;
+                } else {
+                    finishRound(key);
+                    g.timeLeft = g.maxTime;
+                    g.period++;
+                }
+            }
+            saveGameData();
+            updateDisplay();
+        }, 1000);
+
+        function updateDisplay() {
+            document.getElementById("balance").innerText = userBalance.toFixed(2);
+            if(loggedInUserPhone) document.getElementById("loggedUserDisplay").innerText = loggedInUserPhone;
+            saveUserData();
+
+            let g = gameData[currentTab];
+            let mins = Math.floor(g.timeLeft / 60);
+            let secs = g.timeLeft % 60;
+            let mStr = mins < 10 ? "0" + mins : mins;
+            let sStr = secs < 10 ? "0" + secs : secs;
+
+            document.getElementById("timerDigits").innerHTML = `
+                <div class="digit-box">${mStr.toString()[0]}</div>
+                <div class="digit-box">${mStr.toString()[1]}</div>
+                <span style="color: #ffffff; font-weight: bold;">:</span>
+                <div class="digit-box">${sStr.toString()[0]}</div>
+                <div class="digit-box">${sStr.toString()[1]}</div>
+            `;
+            document.getElementById("periodText").innerText = g.period;
+
+            let overlay = document.getElementById("largeCountdownOverlay");
+            if (g.timeLeft <= 5 && g.timeLeft > 0) {
+                overlay.style.display = "flex";
+                document.getElementById("lgMinDigit").innerText = "0";
+                document.getElementById("lgSecDigit").innerText = g.timeLeft;
+            } else { overlay.style.display = "none"; }
+
+            let recentBallsHtml = "";
+            g.history.slice(0, 5).forEach(item => {
+                recentBallsHtml += `<div class="mini-ball" style="background:${item.ballBg};">${item.num}</div>`;
+            });
+            document.getElementById("recentTrendBallsContainer").innerHTML = recentBallsHtml;
+
+            let hHtml = "";
+            g.history.forEach(item => {
+                let colorDots = "";
+                if(item.color.includes('Red')) colorDots += '<span class="dot-red"></span>';
+                if(item.color.includes('Green')) colorDots += '<span class="dot-green"></span>';
+                if(item.color.includes('Violet')) colorDots += '<span class="dot-violet"></span>';
+                hHtml += `<tr><td>${item.period}</td><td><span class="history-ball" style="background:${item.ballBg}">${item.num}</span></td><td>${item.size}</td><td>${colorDots}</td></tr>`;
+            });
+            document.getElementById("historyTable").innerHTML = hHtml;
+
+            let chartRowsHtml = "";
+            g.history.forEach(item => {
+                let numbersLineHtml = "";
+                for(let i=0; i<=9; i++) {
+                    let isHit = (i === item.num);
+                    let nodeBg = isHit ? item.ballBg : "transparent";
+                    let activeClass = isHit ? "active-hit" : "";
+                    numbersLineHtml += `<div class="chart-num-node ${activeClass}" style="background:${nodeBg};">${i}</div>`;
+                }
+                let bsClass = item.size === 'Big' ? 'bs-b' : 'bs-s';
+                chartRowsHtml += `
+                    <div class="chart-row-item">
+                        <span class="chart-period">${item.period}</span>
+                        <div class="chart-numbers-line">${numbersLineHtml}</div>
+                        <div class="chart-bs-badge ${bsClass}">${item.size === 'Big' ? 'B' : 'S'}</div>
+                    </div>
+                `;
+            });
+            document.getElementById("chartRowsContainer").innerHTML = chartRowsHtml;
+
+            let mHtml = "";
+            g.myHistory.forEach(b => {
+                let statusClass = b.status === 'Succeed' ? 'mh-status-success' : (b.status === 'Failed' ? 'mh-status-fail' : '');
+                let amtClass = b.status === 'Succeed' ? 'success' : (b.status === 'Failed' ? 'fail' : '');
+                mHtml += `
+                    <div class="mh-card">
+                        <div class="mh-left">
+                            <div class="mh-badge" style="background:#ff4d4f;">${b.choiceText}</div>
+                            <div class="mh-info">
+                                <div class="mh-period">${b.period}</div>
+                                <div class="mh-time">${b.timeStr}</div>
+                            </div>
+                        </div>
+                        <div class="mh-right">
+                            <span class="mh-status-badge ${statusClass}">${b.status}</span>
+                            <span class="mh-amount ${amtClass}">${b.diffStr}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById("myHistoryListContainer").innerHTML = mHtml;
+        }
+
+        function finishRound(tabKey) {
+            let g = gameData[tabKey];
+            let num = Math.floor(Math.random() * 10);
+            let size = num >= 5 ? 'Big' : 'Small';
+            let color = "Red";
+            let ballBg = "#ff4d4f";
+
+            if (num === 0) { color = "Red/Violet"; ballBg = "linear-gradient(135deg, #ff4d4f 50%, #9c27b0 50%)"; } 
+            else if (num === 5) { color = "Green/Violet"; ballBg = "linear-gradient(135deg, #00c853 50%, #9c27b0 50%)"; } 
+            else if ([1, 3, 7, 9].includes(num)) { color = "Green"; ballBg = "#00c853"; }
+
+            let hasWonCurrentRound = false;
+
+            g.myHistory.forEach(b => {
+                if (b.status === 'Pending') {
+                    let won = (b.choiceText === size || b.choiceText === num.toString() || color.includes(b.choiceText));
+                    if (won) {
+                        b.status = 'Succeed';
+                        let multiplier = (b.choiceText === num.toString()) ? 9 : (b.choiceText === 'Violet' ? 4.5 : 2);
+                        let totalWin = b.amt * multiplier;
+                        userBalance += totalWin;
+                        b.diffStr = "+₹" + totalWin.toFixed(2);
+                        hasWonCurrentRound = true;
+                    } else {
+                        b.status = 'Failed';
+                        b.diffStr = "-₹" + b.amt.toFixed(2);
+                    }
+                }
+            });
+
+            let pendingHad = g.myHistory.some(b => b.status === 'Succeed' || b.status === 'Failed');
+            if(pendingHad) {
+                if(hasWonCurrentRound) { playSound('success'); } else { playSound('fail'); }
+            }
+
+            g.history.unshift({ period: g.period, num: num, size: size, color: color, ballBg: ballBg });
+            if (g.history.length > 20) g.history.pop();
+        }
+
+        function openBetModal(choice) {
+            playSound('click');
+            let g = gameData[currentTab];
+            if (g.timeLeft <= 5) { alert("Betting closed for current period!"); return; }
+            activeSelection = choice;
+            document.getElementById("modalHeaderTitle").innerText = gameData[currentTab].name + " - " + choice;
+            document.getElementById("betModal").style.display = "flex";
+            calculateTotal();
+        }
+
+        function closeBetModal() { playSound('click'); document.getElementById("betModal").style.display = "none"; }
+        
+        function setBaseMoney(amt, element) {
+            playSound('click');
+            baseAmount = amt;
+            document.querySelectorAll('.base-chip').forEach(btn => { btn.style.background = "#f2f2f2"; btn.style.color = "#333"; });
+            element.style.background = "#ff4d4f"; element.style.color = "#fff";
+            calculateTotal();
+        }
+
+        function adjustMultiplier(change) {
+            playSound('click');
+            let input = document.getElementById("modalMultiplierInput");
+            let val = parseInt(input.value) || 1;
+            val += change; if(val < 1) val = 1;
+            currentMultiplierVal = val; input.value = currentMultiplierVal; calculateTotal();
+        }
+
+        function calculateTotal() {
+            let multInput = parseInt(document.getElementById("modalMultiplierInput").value) || 1;
+            currentMultiplierVal = isNaN(multInput) || multInput < 1 ? 1 : multInput;
+            let total = baseAmount * currentMultiplierVal;
+            document.getElementById("totalBetBtn").innerText = "Total amount ₹" + total;
+        }
+
+        function confirmRealBet() {
+            playSound('click');
+            let g = gameData[currentTab];
+            if (g.timeLeft <= 5) { alert("Betting closed!"); closeBetModal(); return; }
+
+            let totalBet = baseAmount * currentMultiplierVal;
+            if (userBalance >= totalBet) {
+                userBalance -= totalBet;
+
+                if(loggedInUserPhone && registeredUsers[loggedInUserPhone]) {
+                    registeredUsers[loggedInUserPhone].totalBet = (registeredUsers[loggedInUserPhone].totalBet || 0) + totalBet;
+                }
+
+                let now = new Date();
+                let timeStr = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+
+                g.myHistory.unshift({
+                    period: g.period, choiceText: activeSelection,
+                    amt: totalBet, timeStr: timeStr, status: 'Pending', diffStr: 'Pending'
+                });
+                saveGameData();
+                updateDisplay();
+                closeBetModal();
+            } else {
+                alert("Insufficient balance! Please deposit.");
+            }
+        }
+
+        function openDepositModal() { playSound('click'); document.getElementById("depositModal").style.display = "flex"; }
+        function closeDepositModal() { playSound('click'); document.getElementById("depositModal").style.display = "none"; }
+        
+        function selectChannel(el, name) {
+            playSound('click');
+            document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function setDepositPreset(amt, el) {
+            playSound('click');
+            document.querySelectorAll('.dep-amt-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById("customDepositAmount").value = amt;
+        }
+
+        function proceedToScanner() {
+            playSound('click');
+            let amt = parseFloat(document.getElementById("customDepositAmount").value);
+            
+            if(isNaN(amt) || amt <= 0) { alert("Enter valid amount!"); return; }
+            if(amt < 100) { alert("❌ न्यूनतम डिपॉजिट (Min Deposit) ₹100 है।"); return; }
+            if(amt > 50000) { alert("❌ अधिकतम डिपॉजिट (Max Deposit) ₹50,000 है।"); return; }
+
+            pendingDepositAmount = amt;
+            activeOrderRefId = "ORD" + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById("scanAmountText").innerText = "₹" + amt;
+            document.getElementById("utrStatusMsg").innerText = "";
+            let upiString = `upi://pay?pa=${myUpiId}&pn=RoyalClub&am=${amt}&cu=INR&tr=${activeOrderRefId}`;
+            document.getElementById("dynamicQRCodeImg").src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=` + encodeURIComponent(upiString);
+            closeDepositModal();
+            document.getElementById("scannerModal").style.display = "flex";
+        }
+
+        function closeScannerModal() { playSound('click'); document.getElementById("scannerModal").style.display = "none"; }
+        
+        function confirmUtrPayment() {
+            playSound('click');
+            let utr = document.getElementById("utrNumberInput").value.trim();
+            let msgDiv = document.getElementById("utrStatusMsg");
+            
+            if (!utr || utr.length !== 12 || isNaN(utr)) {
+                msgDiv.style.color = "#ff4d4f";
+                msgDiv.innerText = "⚠️ कृपया सही 12-Digit UTR नंबर दर्ज करें!";
+                return;
+            }
+
+            let usedUtrs = JSON.parse(localStorage.getItem('royal_used_utrs') || '[]');
+            
+            if (usedUtrs.includes(utr)) {
+                msgDiv.style.color = "#ff4d4f";
+                msgDiv.innerText = "❌ यह UTR पहले ही इस्तेमाल किया जा चुका है!";
+                return;
+            }
+            
+            usedUtrs.push(utr);
+            localStorage.setItem('royal_used_utrs', JSON.stringify(usedUtrs));
+
+            msgDiv.style.color = "#00c853";
+            msgDiv.innerText = "✅ Payment Verified Successfully!";
+            userBalance += pendingDepositAmount;
+
+            if(loggedInUserPhone && registeredUsers[loggedInUserPhone]) {
+                registeredUsers[loggedInUserPhone].totalDep = (registeredUsers[loggedInUserPhone].totalDep || 0) + pendingDepositAmount;
+            }
+
+            setTimeout(() => {
+                closeScannerModal();
+                document.getElementById("utrNumberInput").value = "";
+                updateDisplay();
+                alert("₹" + pendingDepositAmount + " added successfully!");
+            }, 1000);
+        }
+
+        function openWithdrawModal() { 
+            playSound('click');
+            document.getElementById("whatsappShareBox").style.display = "none";
+            document.getElementById("withdrawModal").style.display = "flex"; 
+        }
+
+        function closeWithdrawModal() { playSound('click'); document.getElementById("withdrawModal").style.display = "none"; }
+        
+        function filterBanks() {
+            let inputVal = document.getElementById("bankSearchInput").value.toLowerCase();
+            let dropdown = document.getElementById("bankDropdown");
+            dropdown.innerHTML = "";
+            if (inputVal.trim() === "") { dropdown.style.display = "none"; return; }
+            let filtered = bankList.filter(b => b.toLowerCase().includes(inputVal));
+            if (filtered.length > 0) {
+                dropdown.style.display = "block";
+                filtered.forEach(bank => {
+                    let div = document.createElement("div");
+                    div.className = "bank-item";
+                    div.innerText = bank;
+                    div.onclick = function() { document.getElementById("bankSearchInput").value = bank; dropdown.style.display = "none"; };
+                    dropdown.appendChild(div);
+                });
+            } else { dropdown.style.display = "none"; }
+        }
+    </script>
+</body>
+</html>
